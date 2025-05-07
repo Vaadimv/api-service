@@ -27,7 +27,6 @@
 
 ### Вариант 1: через Docker
 
-```bash
 git clone git@github.com:Vaadimv/api-service.git
 cd api-service
 docker compose up --build
