@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Тестирование API</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        code {
+            word-break: break-word;
+        }
+        pre {
+            max-height: 500px;
+            overflow: auto;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+<div class="container py-5">
+    <div class="card shadow p-4">
+        <h2 class="mb-4">🚀 Тестирование API <code>{{ endpoint_name }}</code></h2>
+
+        {% if token %}
+        <div class="alert alert-info d-flex justify-content-between align-items-center">
+            <div>
+                <strong>Ваш токен:</strong><br>
+                <code id="authToken">Bearer {{ token }}</code>
+            </div>
+            <button class="btn btn-sm btn-outline-dark"
+                    onclick="navigator.clipboard.writeText('Bearer {{ token }}')">Скопировать</button>
+        </div>
+        {% endif %}
+
+        {% if parameters %}
+        <form id="apiForm" class="mb-4">
+            <div class="row">
+                {% for param in parameters %}
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">{{ param }}</label>
+                    <input type="text" class="form-control" id="{{ param }}" name="{{ param }}" required>
+                </div>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn btn-primary">Выполнить</button>
+        </form>
+
+        <div class="mb-3">
+            <strong>URL:</strong> <a id="finalUrl" target="_blank">{{ base_url }}</a>
+        </div>
+
+        <pre class="bg-light p-3 border rounded" id="result">← Введите параметры и нажмите "Выполнить"</pre>
+        {% else %}
+        <div class="alert alert-warning">У этого API нет параметров.</div>
+        <a class="btn btn-primary" href="{{ base_url }}">Выполнить</a>
+        {% endif %}
+
+        <a href="/manage-apis" class="btn btn-secondary mt-4">← Назад</a>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("apiForm");
+    if (!form) return;
+
+    form.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const baseUrl = "{{ base_url }}";
+        const params = new URLSearchParams();
+        const missing = [];
+
+        {% for param in parameters %}
+        const val_{{ param }} = document.getElementById("{{ param }}").value.trim();
+        if (!val_{{ param }}) {
+            missing.push("{{ param }}");
+        } else {
+            params.append("{{ param }}", val_{{ param }});
+        }
+        {% endfor %}
+
+        if (missing.length > 0) {
+            alert("Пожалуйста, заполните все параметры: " + missing.join(", "));
+            return;
+        }
+
+        const url = baseUrl + "?" + params.toString();
+        const headers = {};
+        {% if token %}
+        headers["Authorization"] = "Bearer {{ token }}";
+        {% endif %}
+
+        document.getElementById("finalUrl").textContent = url;
+        document.getElementById("finalUrl").href = url;
+        document.getElementById("result").textContent = "⏳ Выполняется запрос...";
+
+        fetch(url, { headers })
+            .then(async res => {
+                const text = await res.text();
+                try {
+                    const json = JSON.parse(text);
+                    document.getElementById("result").textContent = JSON.stringify(json, null, 2);
+                } catch {
+                    document.getElementById("result").textContent = text || "Пустой ответ";
+                }
+
+                if (!res.ok) {
+                    document.getElementById("result").textContent = `Ошибка ${res.status}: ${text}`;
+                }
+            })
+            .catch(err => {
+                document.getElementById("result").textContent = "Ошибка запроса: " + err;
+            });
+    });
+});
+</script>
+</body>
+</html>

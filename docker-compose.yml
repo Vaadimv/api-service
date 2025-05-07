@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  oracle-api:
+    build: .
+    container_name: api-service
+    ports:
+      - "8100:8000"
+    volumes:
+      - .:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped

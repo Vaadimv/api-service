@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Управление клиентами</title>
+</head>
+<body>
+    <h1>Список клиентов</h1>
+    <ul>
+        {% for client in clients %}
+            <li>{{ client[0] }} - {{ client[1] }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Добавить клиента</h2>
+    <form method="post" action="/add-client">
+        <input type="text" name="name" placeholder="Имя клиента" required>
+        <button type="submit">Добавить</button>
+    </form>
+</body>
+</html>
+

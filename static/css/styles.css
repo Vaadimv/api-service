@@ -1,0 +1,177 @@
+/* ========================
+   Общие стили для страницы
+======================== */
+body {
+    background-color: #f0f0f5;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+    color: #333;
+}
+
+/* ====================
+   Логотип и иконки
+==================== */
+.logo {
+    height: 150px;
+    transition: transform 0.3s ease;
+}
+.logo:hover {
+    transform: scale(1.05);
+}
+
+.logo-shadow {
+    width: auto;
+    height: 100px;
+    display: block;
+    margin: 0 auto;
+    object-fit: contain;
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.5)); /* Интенсивная реалистичная тень */
+}
+
+/* ==========================
+   Панель пользователя (слева)
+========================== */
+.bg-dark-panel {
+    background-color: #161b21;
+    border-radius: 16px;
+    color: #ffffff;
+}
+.bg-dark-panel .btn {
+    border-width: 1.5px;
+    font-weight: 500;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.bg-dark-panel .btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: scale(1.02);
+}
+.bg-dark-panel .text-muted {
+    color: #000000 !important;
+}
+
+.card.bg-dark-panel {
+    background-color: #dcdcde !important;
+    color: #ffffff;
+    border: none !important;
+}
+/* ======================
+   Карточки и таблицы
+====================== */
+.card-style {
+    background: white;
+    border-radius: 20px;
+    padding: 40px 60px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+.card-style:hover {
+    transform: translateY(-10px);
+}
+
+.card {
+    background-color: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+    padding: 20px;
+    font-size: 1.2rem;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.table th,
+.table td {
+    padding: 15px;
+    text-align: left;
+}
+.table th {
+    background-color: #343a40;
+    color: white;
+}
+.table td {
+    background-color: #ffffff;
+    color: #555;
+}
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+    cursor: pointer;
+}
+
+/* ====================
+   Заголовки
+==================== */
+.header-text,
+h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+}
+
+/* ===========================
+   Кнопки (все размеры)
+=========================== */
+.btn,
+.btn-sm,
+.btn-lg {
+    border-radius: 10px !important;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-lg {
+    padding: 14px 24px;
+    font-size: 1.1rem;
+}
+.btn-lg:hover {
+    background-color: #4c8bf5;
+    color: #fff;
+}
+
+/* Контуры и действия */
+.btn-outline-primary:hover {
+    background-color: #007bff;
+    color: #fff;
+}
+.btn-outline-danger {
+    border-color: #f44336;
+}
+.btn-outline-danger:hover {
+    background-color: #f44336;
+    color: white;
+    transform: scale(1.05);
+}
+.btn-outline-dark:hover {
+    background-color: #333;
+    color: white;
+}
+
+/* Группы кнопок */
+.btn-group .btn {
+    margin-right: 8px;
+}
+
+.filter-dark {
+    filter: brightness(0) invert(0);
+}
+/* ==========================
+   Мобильная адаптация
+========================== */
+@media (max-width: 768px) {
+    .card {
+        margin-top: 10px;
+    }
+    .table th,
+    .table td {
+        font-size: 0.85rem;
+    }
+}
+

@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.sqlite3
+*.log
+
+# Virtual env
+api_venv/
+venv/
+.env
+
+# Editor & OS
+*.swp
+.DS_Store
+.idea/
+.vscode/
+
+# Docker
+*.pid
+*.bak
+*.tar
+*.gz
+*.zip
+
+# Database
+database/api.db

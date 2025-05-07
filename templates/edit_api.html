@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Редактировать API</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="/static/favicon.png">
+
+    <!-- CodeMirror -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/theme/eclipse.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/sql/sql.min.js"></script>
+
+    <!-- Axios -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <style>
+        .CodeMirror {
+            border: 1px solid #ced4da;
+            border-radius: .375rem;
+            font-size: 14px;
+            min-height: 160px;
+        }
+        .table-responsive {
+            overflow-x: auto;
+        }
+        table {
+            table-layout: auto;
+            width: max-content;
+            min-width: 100%;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0">✏️ Редактировать API</h2>
+            <p class="text-muted">ID API: <code>{{ api.id }}</code></p>
+        </div>
+        <a href="/manage-apis" class="btn btn-outline-secondary">← Назад</a>
+    </div>
+
+    <div class="card shadow-sm p-4">
+        <form method="post" action="/edit-api/{{ api.id }}" id="editApiForm">
+            <div class="mb-3">
+                <label for="endpoint_name" class="form-label">Название эндпоинта</label>
+                <input type="text" class="form-control" id="endpoint_name" name="endpoint_name" value="{{ api['endpoint_name'] }}" required>
+                <div class="form-text">Эндпоинт будет доступен по адресу: <code>/api/{{ api['endpoint_name'] }}</code></div>
+            </div>
+
+            <div class="mb-3">
+                <label for="connector_id" class="form-label">Коннектор базы данных</label>
+                <select class="form-select" id="connector_id" name="connector_id" required>
+                    {% for connector in connectors %}
+                        <option value="{{ connector['id'] }}" {% if connector['id'] == api['connector_id'] %}selected{% endif %}>
+                            {{ connector['name'] }} ({{ connector['db_type'] }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="sql_query" class="form-label">SQL-запрос</label>
+                <textarea id="sql_query" name="sql_query" required>{{ api['sql_query'] }}</textarea>
+                <div class="form-text">Вы можете использовать параметры: <code>:param</code> или <code>%(param)s</code></div>
+            </div>
+
+            <div class="mb-3">
+                <label for="parameters" class="form-label">Параметры (в JSON-формате)</label>
+                <textarea class="form-control" id="parameters" name="parameters" rows="3" placeholder='["param1", "param2"]'>{{ api['parameters'] }}</textarea>
+                <div class="form-text">Перечислите параметры, которые должны быть переданы в API</div>
+            </div>
+
+            <div class="d-flex gap-3">
+                <button type="submit" class="btn btn-primary">💾 Сохранить изменения</button>
+                <button type="button" class="btn btn-outline-primary" onclick="testSQL()">🧪 Проверить SQL</button>
+                <a href="/manage-apis" class="btn btn-secondary">Отмена</a>
+            </div>
+        </form>
+
+        <div id="testResult" class="mt-4"></div>
+    </div>
+</div>
+
+<script>
+let editor;
+
+document.addEventListener("DOMContentLoaded", function () {
+    editor = CodeMirror.fromTextArea(document.getElementById("sql_query"), {
+        mode: "text/x-sql",
+        theme: "eclipse",
+        lineNumbers: true,
+        indentWithTabs: true,
+        smartIndent: true,
+        matchBrackets: true
+    });
+    editor.focus();
+
+    document.getElementById("editApiForm").addEventListener("submit", function () {
+        editor.save();
+    });
+});
+
+function testSQL() {
+    editor.save();
+
+    const connectorId = document.getElementById('connector_id').value;
+    const sqlQuery = document.getElementById('sql_query').value;
+
+    if (!sqlQuery.trim()) {
+        alert("Введите SQL-запрос для проверки.");
+        return;
+    }
+
+    axios.post('/test-sql', new URLSearchParams({
+        connector_id: connectorId,
+        sql_query: sqlQuery
+    }), {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => {
+        const resultDiv = document.getElementById("testResult");
+        resultDiv.innerHTML = '';
+
+        const rows = response.data.rows || [];
+
+        if (rows.length === 0) {
+            resultDiv.innerHTML = '<div class="alert alert-warning">Нет данных.</div>';
+            return;
+        }
+
+        const table = document.createElement('table');
+        table.className = 'table table-bordered table-sm table-striped';
+
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+        Object.keys(rows[0]).forEach(col => {
+            const th = document.createElement('th');
+            th.textContent = col;
+            headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+        const tbody = document.createElement('tbody');
+        rows.forEach(row => {
+            const tr = document.createElement('tr');
+            Object.values(row).forEach(value => {
+                const td = document.createElement('td');
+                td.textContent = value;
+                tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+
+        resultDiv.innerHTML = '<h5 class="mb-3">✅ Результат:</h5>';
+        const wrapper = document.createElement('div');
+        wrapper.className = 'table-responsive';
+        wrapper.appendChild(table);
+        resultDiv.appendChild(wrapper);
+    })
+    .catch(error => {
+        const resultDiv = document.getElementById("testResult");
+        const message = error.response?.data?.error || error.message || 'Неизвестная ошибка';
+        resultDiv.innerHTML = `<div class="alert alert-danger"><strong>Ошибка:</strong> ${message}</div>`;
+    });
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row g-4">
+        <!-- Левая панель: логотип, профиль и навигация -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm p-4 text-center bg-dark-panel text-white">
+                <!-- Логотип -->
+                <img src="/static/logo.png?v=3" alt="Логотип" class="logo-shadow mb-4">
+
+                <!-- Иконка пользователя -->
+                <img src="/static/user-icon.png" alt="User Icon"
+                     class="mb-3 mx-auto d-block"
+                     style="width: 112px; height: 112px; object-fit: cover;">
+
+                <h5 class="mb-1">{{ user['username'] }}</h5>
+                <p class="text-muted small mb-4" >Создавайте и управляйте API 👋</p>
+
+                <div class="d-grid gap-2">
+                    <a href="/manage-connectors" class="btn btn-primary btn-sm py-2">🔌 Управление коннекторами</a>
+                    <a href="/create-api" class="btn btn-success btn-sm py-2">➕ Создать новый API</a>
+                    <a href="/manage-apis" class="btn btn-secondary btn-sm py-2">📡 Управление API</a>
+                    <a href="/manage-users" class="btn btn-outline-dark btn-sm py-2">👥 Пользователи</a>
+                    <a href="/manage-api-tokens" class="btn btn-outline-primary btn-sm py-2">🔑 API Токены</a>
+                    <a href="/logout" class="btn btn-outline-danger btn-sm py-2">✖️ Выйти</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Правая панель: таблица последних API -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm p-4">
+                <h5 class="mb-4">📋 Созданные API</h5>
+                {% if apis %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle table-sm">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Эндпоинт</th>
+                                <th>Коннектор</th>
+                                <th>Тип БД</th>
+                                <th>Статус</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for api in apis %}
+                            <tr>
+                                <td>{{ api["id"] }}</td>
+                                <td><code>/api/{{ api["endpoint_name"] }}</code></td>
+                                <td>{{ api["connector_name"] }}</td>
+                                <td>{{ api["db_type"] }}</td>
+                                <td>
+                                    {% if api["active"] %}
+                                        <span class="badge bg-success">Активен</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Отключен</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                    <div class="alert alert-warning text-center mb-0">Нет созданных API.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<div class="position-fixed bottom-0 end-0 p-3 text-muted small" style="z-index: 1000;">
+    <span>© 2025 Vadim Yakovlev</span>
+</div>
+{% endblock %}

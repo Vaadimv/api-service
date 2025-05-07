@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление API-токенами</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="icon" type="image/png" href="/static/favicon.png">
+</head>
+<body>
+
+<div class="container py-5">    
+    {% if request.session.get('message') %}
+        <div class="alert alert-info text-center">
+         {{ request.session.pop('message') }}
+        </div>
+    {% endif %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>🔑 Управление API-токенами</h2>
+            <p class="text-muted">Выдача и управление токенами для доступа к API</p>
+        </div>
+        <a href="/" class="btn btn-outline-dark btn-sm">🏠 На главную</a>
+    </div>
+
+    {% if tokens|length > 0 %}
+    <!-- Таблица токенов -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Список токенов</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Пользователь</th>
+                        <th>Токен</th>
+                        <th>Комментарий</th>
+                        <th>Создан</th>
+                        <th>Истекает</th>
+                        {% if user.role == 'admin' %}
+                        <th class="text-center">Действия</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in tokens %}
+                    <tr>
+                        <td class="text-center">{{ t["id"] }}</td>
+                        <td>{{ t["username"] }}</td>
+                        <td><code>{{ t["token"] }}</code></td>
+                        <td>{{ t["comment"] or "—" }}</td>
+                        <td>{{ t["created_at"] }}</td>
+                        <td>{{ t["expires_at"] or "—" }}</td>
+                        {% if user.role == 'admin' %}
+                        <td class="text-center">
+                            <a href="/delete-token/{{ t['id'] }}" class="btn btn-sm btn-danger"
+                               onclick="return confirm('Удалить токен?')">
+                               <i class="fa fa-trash"></i> Удалить
+                            </a>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if user.role == 'admin' %}
+    <!-- Только для администратора: форма выдачи токена -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Выдать новый API-токен</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" action="/issue-token" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Пользователь</label>
+                    <select name="user_id" class="form-select" required>
+                        {% for u in users %}
+                            <option value="{{ u['id'] }}">{{ u['username'] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Комментарий</label>
+                    <input type="text" name="comment" class="form-control" placeholder="Postman, CI/CD и т.д.">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Срок действия (опц.)</label>
+                    <input type="date" name="expires_at" class="form-control">
+                </div>
+                <div class="col-md-2 align-self-end">
+                    <button type="submit" class="btn btn-success w-100">Выдать токен</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% else %}
+        {% if tokens|length == 0 %}
+        <!-- Если у пользователя нет токенов -->
+        <div class="alert alert-info text-center">
+            У вас нет активных токенов.
+            <form method="post" action="/request-token" class="d-inline">
+                <input type="hidden" name="comment" value="">
+                <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Запросить токен</button>
+            </form>
+        </div>
+        {% endif %}
+    {% endif %}
+<!-- Zayavki na tokeni-->
+    {% if user['role'] == 'admin' and requests %}
+    <div class="card shadow-sm mt-4">
+        <div class="card-header">
+            <h5 class="mb-0">Заявки на выдачу токенов</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover table-sm mb-0">
+                <thead class="table-warning">
+                    <tr>
+                        <th>ID</th>
+                        <th>Пользователь</th>
+                        <th>Комментарий</th>
+                        <th>Запрошено</th>
+                        <th>Статус</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in requests %}
+                    <tr>
+                        <td>{{ r["id"] }}</td>
+                        <td>{{ r["username"] }}</td>
+                        <td>{{ r["comment"] or "—" }}</td>
+                        <td>{{ r["requested_at"][:19].replace('T', ' ') }}</td>
+                        <td>
+                            {% if r["status"] == 'pending' %}
+                                <span class="badge bg-warning text-dark">В ожидании</span>
+                            {% elif r["status"] == 'approved' %}
+                                <span class="badge bg-success">Одобрено</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Отклонено</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+    {% if user['role'] != 'admin' and requests %}
+    <div class="card shadow-sm mt-4">
+        <div class="card-header">
+            <h5 class="mb-0">Мои заявки на токены</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-sm table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Комментарий</th>
+                        <th>Дата запроса</th>
+                        <th>Статус</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in requests %}
+                    <tr>
+                        <td>{{ r["id"] }}</td>
+                        <td>{{ r["comment"] or "—" }}</td>
+                        <td>{{ r["requested_at"][:19].replace('T', ' ') }}</td>
+                        <td>
+                            {% if r["status"] == 'pending' %}
+                                <span class="badge bg-warning text-dark">В ожидании</span>
+                            {% elif r["status"] == 'approved' %}
+                                <span class="badge bg-success">Одобрено</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Отклонено</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+         
+    <div class="mt-4">
+        <a href="/" class="btn btn-secondary">← Назад на главную</a>
+    </div>
+</div>
+
+</body>
+</html>
