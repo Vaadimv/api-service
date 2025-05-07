@@ -36,8 +36,8 @@ docker compose up --build
 Логин: admin
 Пароль: admin
 
-###Вариант 2: локальный запуск
-# Клонируем проект
+## Вариант 2: локальный запуск
+Клонируем проект
 git clone git@github.com:Vaadimv/api-service.git
 cd api-service
 
