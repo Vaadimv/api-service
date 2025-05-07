@@ -52,6 +52,7 @@ pip install -r requirements.txt
 uvicorn main:app --reload
 
 📁 Структура проекта
+```
 .
 ├── app/                 # Маршруты (API, авторизация, управление)
 ├── static/              # CSS, иконки, логотип
@@ -62,7 +63,7 @@ uvicorn main:app --reload
 ├── main.py              # Точка входа в FastAPI
 ├── app_core.py          # Логика подключения и запросов
 ├── auth_utils.py        # Авторизация, токены
-├── dynamic_routes.py    # Автоматическая регистрация API
+├── dynamic_routes.py    # Автоматическая регистрация API```
 
 
 🔐 Админ-доступ по умолчанию
