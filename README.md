@@ -29,6 +29,17 @@
 ```bash
 git clone git@github.com:Vaadimv/api-service.git
 cd api-service
+```
+#### Установка Oracle Instant Client
+
+1. Перейдите на [официальную страницу загрузки Oracle](https://www.oracle.com/database/technologies/instant-client/downloads.html)
+2. Скачайте следующие файлы для Linux x86_64:
+   - `instantclient-basic-linux.x64-23.7.0.25.01.zip`
+   - `instantclient-sdk-linux.x64-23.7.0.25.01.zip`
+3. Поместите их в корневую папку проекта.
+4. Запустите сборку:
+
+```bash
 docker compose up --build
 ```
 Открой в браузере: http://localhost:8000
