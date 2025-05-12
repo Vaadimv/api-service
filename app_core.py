@@ -1,7 +1,21 @@
 from fastapi import FastAPI
 import sqlite3
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://llm.tattelecom.ru",
+        "http://llm.tattelecom.ru:3000",
+        "http://192.168.114.105:3000",
+        "http://localhost:3000"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 
 def get_db_connection():

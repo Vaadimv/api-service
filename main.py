@@ -27,6 +27,7 @@ app.include_router(user_router)
 from app.routes.connector_routes import router as connector_router
 app.include_router(connector_router)
 from app.routes.api_routes import router as api_router
+
 app.include_router(api_router)
 app.add_middleware(SessionMiddleware, secret_key="6fG7@dk93L!vd09a")  # желательно длиннее и безопаснее
 app.mount("/static", StaticFiles(directory="static"), name="static")

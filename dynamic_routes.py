@@ -1,3 +1,4 @@
+from tool_decorator import tool
 import json
 import inspect
 from typing import Callable
@@ -46,12 +47,14 @@ def register_dynamic_apis():
             **{param: (str, ...) for param in param_list}
         )
 
+        @tool(name=f"{endpoint_name}_post", description=f"[POST] Динамический API для {endpoint_name}")
         async def post_endpoint(
             data: InputModel = Body(...),
             request: Request = None
         ):
             return await process_dynamic_query(request, connector_id, sql_query, data.dict())
 
+        @tool(name=f"{endpoint_name}_get", description=f"[GET] Динамический API для {endpoint_name}")
         async def get_endpoint(
             query_data=build_query_params_model(param_list),
             request: Request = None
