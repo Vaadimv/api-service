@@ -123,3 +123,10 @@ curl -X POST http://localhost:8000/api/get_clients \
 # 👨‍💻 Автор
 Разработано Vaadimv
 ### Если проект вам помог — поставьте ⭐️
+
+## License
+
+This project is licensed under the [Apache License 2.0](LICENSE).
+
+You are free to use, modify, and distribute this software under the terms of the license.
+
